@@ -41,6 +41,11 @@ if __name__ == '__main__':
         print(f"Melhor partição: {melhor_particao}")
 
 
+        tableau_inicial = aux.montar_tableau(pl, min)
+        print("\n===== Tableau Inicial Simplex =====")
+        print(tableau_inicial)
+
+
     elif(sys.argv[1] == "p2"):
         #Variaveis de entrada
         caminho = f"{sys.argv[1]}/mc_instance{sys.argv[2]}.max"
@@ -72,4 +77,8 @@ if __name__ == '__main__':
         print("\n===== Vetor de Custos (c) =====")
         c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
         print(f"[{c_formatado}]")
+
+        tableau_inicial = aux.montar_tableau(pl, max)
+        print("\n===== Tableau Inicial Simplex =====")
+        print(tableau_inicial)
 

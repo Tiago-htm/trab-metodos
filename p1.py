@@ -56,6 +56,59 @@ def montarPlCorte(instancia):
 
     return {'A': A, 'b': b, 'c': c}
 
+def montarPlCorte(instancia):
+    arestas = instancia['arestas']
+    qtdArestas = len(arestas)
+    qtdVertices = instancia['qtdVertices']
+    s = instancia['s']
+    t = instancia['t']
+
+    qtdColunas = qtdArestas + qtdVertices
+
+    A = []
+    b = []
+    for indexAresta, (u, v, cap) in enumerate(arestas):
+        coef1 = [0.0] * qtdColunas
+        coef1[indexAresta] = -1.0                   
+        coef1[qtdArestas + u - 1] = 1.0         
+        coef1[qtdArestas + v - 1] = -1.0       
+        A.append(coef1)
+        b.append(0.0)
+
+        coef2 = [0.0] * qtdColunas
+        coef2[indexAresta] = -1.0                  
+        coef2[qtdArestas + u - 1] = -1.0           
+        coef2[qtdArestas + v - 1] = 1.0             
+        A.append(coef2)
+        b.append(0.0)
+
+    coef_s1 = [0.0] * qtdColunas
+    coef_s1[qtdArestas + s - 1] = 1.0
+    A.append(coef_s1)
+    b.append(0.0)
+
+    coef_s2 = [0.0] * qtdColunas
+    coef_s2[qtdArestas + s - 1] = -1.0
+    A.append(coef_s2)
+    b.append(0.0)
+
+    coef_t1 = [0.0] * qtdColunas
+    coef_t1[qtdArestas + t - 1] = 1.0
+    A.append(coef_t1)
+    b.append(1.0)
+
+    coef_t2 = [0.0] * qtdColunas
+    coef_t2[qtdArestas + t - 1] = -1.0
+    A.append(coef_t2)
+    b.append(-1.0)
+
+    c = [0.0] * qtdColunas
+    for indexAresta, (u, v, cap) in enumerate(arestas):
+        c[indexAresta] = cap 
+    
+
+    return {'A': A, 'b': b, 'c': c}
+
 
 if __name__ == '__main__':
     instancia = lerInstance('p1/instance1.min')
