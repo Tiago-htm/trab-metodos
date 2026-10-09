@@ -28,56 +28,66 @@ if __name__ == '__main__':
         print(f"\n[ P1 - Corte Mínimo s-t ]")
         print(f"Vértices: {instancia['qtdVertices']} | Origem (s): {instancia['s']} | Destino (t): {instancia['t']}")
         
-        print("\n===== Arestas (u -> v : capacidade) =====")
-        for u, v, cap in instancia['arestas']:
-            print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
+        #print("\n===== Arestas (u -> v : capacidade) =====")
+        #for u, v, cap in instancia['arestas']:
+            #print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
             
-        print("\n===== Restrições (A <= b) =====")
-        for linha, bi in zip(pl['A'], pl['b']):
-            linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
-            print(f"[{linha_formatada}] <= {bi:5.1f}")
+        #print("\n===== Restrições (A <= b) =====")
+        #for linha, bi in zip(pl['A'], pl['b']):
+            #linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
+            #print(f"[{linha_formatada}] <= {bi:5.1f}")
 
             
-        print("\n===== Vetor de Custos (c) =====")
-        c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
-        print(f"[{c_formatado}]")
+        #print("\n===== Vetor de Custos (c) =====")
+        #c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
+        #print(f"[{c_formatado}]")
 
         matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertices'])
-        print("\n===== Matriz de Adjacência =====")
-        print(matriz)
+        #print("\n===== Matriz de Adjacência =====")
+        #print(matriz)
 
         print(f"\n" + "="*55)
-        print(f" RESULTADO DO STOER-WAGNER (Corte Mínimo Global)")
-        print("="*55)
-        print(f"Custo do Corte Global : {valor_sw:5.1f}")
-        print(f"Partição (A)     : {particao_1_real}")
-        print(f"Resto do Grafo (B)    : {particao_2_real}")
-        print("="*55)
+        
 
         tableau_inicial = aux.montar_tableau(pl, 'min')
-        print("\n===== Tableau Inicial Simplex =====")
-        print(tableau_inicial)
-
         quantidadeAresta = len(instancia['arestas'])
         quantidadeVertice = instancia['qtdVertices']
+
         W, corteS, corteT = primal_dual.corteMinimo(tableau_inicial,quantidadeVertice, quantidadeAresta)
-        print("W =", W)
-        print("Lado s:", corteS)
-        print("Lado t:", corteT)
+        
 
         np.set_printoptions(threshold=np.inf, linewidth=250, precision=2, suppress=True)
 
 
         valor_otimo, variaveis = pulpTeste.p1_pulp(instancia)
 
+
+        print(f"\n" + "="*55)
+        print(f" RESULTADO DO PRIMAL-DUAL (Corte Mínimo)")
+        
+        print("W =", W)
+        print("Lado s:", corteS)
+        print("Lado t:", corteT)
+
+        print(f"\n" + "="*55)
         print(f"Valor do Corte Mínimo Pulp: {valor_otimo}")
         print("=== Variáveis Ativas (Valor > 0) ===")
-
         for var in variaveis:
-            valor_arredondado = round(var.varValue, 5) 
-            
-            if valor_arredondado > 0:
-                print(f"{var.name} = {valor_arredondado}")
+                    valor_arredondado = round(var.varValue, 5) 
+                    
+                    if valor_arredondado > 0:
+                        print(f"{var.name} = {valor_arredondado}")
+        
+        print("="*55)
+        print(f" RESULTADO DO STOER-WAGNER (Corte Mínimo)")
+        #print("="*55)
+        print(f"Custo do Corte Global : {valor_sw:5.1f}")
+        print(f"Partição (A)     : {particao_1_real}")
+        print(f"Resto do Grafo (B)    : {particao_2_real}")
+        print("="*55)
+
+        
+        
 
 
     elif(sys.argv[1] == "p2"):
@@ -97,35 +107,39 @@ if __name__ == '__main__':
             premio = instancia['premios'][m]
             print(f"  Merc {m}: {origem:2d} -> {destino:2d} | Prémio: {premio:5.1f}")
 
-        print("\n===== Arestas (u -> v : capacidade) =====")
-        for u, v, cap in instancia['arestas']:
-            print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
+        #print("\n===== Arestas (u -> v : capacidade) =====")
+        #for u, v, cap in instancia['arestas']:
+            #print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
             
         pl = p2.montarPlMercadoria(instancia)
         
-        print("\n===== Restrições (A <= b) =====")
-        for linha, bi in zip(pl['A'], pl['b']):
-            linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
-            print(f"[{linha_formatada}] <= {bi:5.1f}")
+        #print("\n===== Restrições (A <= b) =====")
+        #for linha, bi in zip(pl['A'], pl['b']):
+            #linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
+            #print(f"[{linha_formatada}] <= {bi:5.1f}")
             
-        print("\n===== Vetor de Custos (c) =====")
-        c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
-        print(f"[{c_formatado}]")
+        #print("\n===== Vetor de Custos (c) =====")
+        #c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
+        #print(f"[{c_formatado}]")
 
         tableau_inicial = aux.montar_tableau(pl, 'max')
         quantidadeAresta =  len(instancia['arestas'])
         quantidadeMercadoria = instancia['qtdMercadoria']
-
+        
         Z, fluxos = primal_dual.mercadoria(tableau_inicial, quantidadeAresta, quantidadeMercadoria)
+        
+
+        valor_otimo, variaveis = pulpTeste.p2_pulp(instancia)
+
+        print(f"\n" + "="*55)
+        print(f" RESULTADO DO PRIMAL-DUAL (Fluxo Máximo)")
+        print("="*55)
         print("Z =", Z)
         for mercadoria, arco, valor in fluxos:
             u, v, cap = instancia['arestas'][arco]
             print(f"  Mercadoria {mercadoria}: {u:2d} -> {v:2d} : {valor}")
 
-
-
-        valor_otimo, variaveis = pulpTeste.p2_pulp(instancia)
-
+        print(f"\n" + "="*55)
         print(f"Valor do Fluxo Máximo Pulp: {valor_otimo}")
         print("=== Variáveis Ativas (Valor > 0) ===")
 
@@ -134,4 +148,6 @@ if __name__ == '__main__':
             
             if valor_arredondado > 0:
                 print(f"{var.name} = {valor_arredondado}")
+        print("="*55)
+        
 

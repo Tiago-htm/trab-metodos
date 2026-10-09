@@ -50,7 +50,7 @@ def primalDual(tableau):
             break
       pivo = tableau[linhaRetirada, colunaEntra]
       tableau[linhaRetirada] = tableau[linhaRetirada] / pivo
-      print(tableau[linhaRetirada])
+      #print(tableau[linhaRetirada])
       for k  in range(tableau.shape[0]):
             if k  != linhaRetirada:
                   novaEntrada = tableau[k,colunaEntra]
@@ -116,7 +116,7 @@ def mercadoria(tableau, quantidadeAresta, quantidadeMercadoria):
         valor = tableau[base.index(coluna),-1]
       valor = round(valor, 6)
       if valor != 0:
-            mercadoria = coluna
+            mercadoria = (coluna // quantidadeAresta) + 1   # pega valor de mercadoria correto
             aresta = coluna % quantidadeAresta
             fluxos.append((mercadoria, aresta, valor))
 
