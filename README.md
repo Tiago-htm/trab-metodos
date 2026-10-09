@@ -1,0 +1,6 @@
+Trabalho Métodos Exatos
+
+Bernardo Florenzano - 2023003052
+Pedro Luiz - 2022014276
+Tiago Antonio - 2022000969
+
