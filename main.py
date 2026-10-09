@@ -1,5 +1,7 @@
 import sys
 
+from numpy import rint
+
 import p1
 import p2
 import stoer_wagner as sw
@@ -13,7 +15,11 @@ if __name__ == '__main__':
         instancia = p1.lerInstance(caminho)
         pl = p1.montarPlCorte(instancia)
         matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertices'])
-        menor_corte, melhor_particao = sw.stoer_wagner(matriz)
+        resultado_sw = sw.stoer_wagner(matriz)
+
+        valor_sw = resultado_sw['valor']
+        particao_1_real = [v + 1 for v in resultado_sw['particao1']]
+        particao_2_real = [v + 1 for v in resultado_sw['particao2']]
 
         print(f"\n[ P1 - Corte Mínimo s-t ]")
         print(f"Vértices: {instancia['qtdVertices']} | Origem (s): {instancia['s']} | Destino (t): {instancia['t']}")
@@ -36,10 +42,13 @@ if __name__ == '__main__':
         print("\n===== Matriz de Adjacência =====")
         print(matriz)
 
-        print(f"\n===== Resultado do Algoritmo de Stoer-Wagner =====")
-        print(f"Menor corte: {menor_corte:5.1f}")
-        print(f"Melhor partição: {melhor_particao}")
-
+        print(f"\n" + "="*55)
+        print(f" RESULTADO DO STOER-WAGNER (Corte Mínimo Global)")
+        print("="*55)
+        print(f"Custo do Corte Global : {valor_sw:5.1f}")
+        print(f"Partição (A)     : {particao_1_real}")
+        print(f"Resto do Grafo (B)    : {particao_2_real}")
+        print("="*55)
 
     elif(sys.argv[1] == "p2"):
         #Variaveis de entrada
