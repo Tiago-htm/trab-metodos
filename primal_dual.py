@@ -18,7 +18,9 @@
 # a 7 10 10
 # a 8 10 8
 # a 9 10 6
-def corteMinimo(tableau):
+def corteMinimo(tableau, quantidadeVertice, quantidadeAresta):
+    corteS = []
+    corteT = []
     quantidadeR = tableau.shape[0] -1
     quantidadeColuna = tableau.shape[1]
     #
@@ -36,7 +38,7 @@ def corteMinimo(tableau):
             print("Interacao acabou")
             break
       colunaEntra = None
-      melhorRazao = -1000000000000
+      melhorRazao = -100000000000000
 
       for  j, valor in enumerate(tableau[linhaRetirada, :-1]):
             if valor < -1e-9:
@@ -46,3 +48,24 @@ def corteMinimo(tableau):
       if colunaEntra is None:
             print("PPL sem solucao")
             break
+      pivo = tableau[linhaRetirada, colunaEntra]
+      tableau[linhaRetirada] = tableau[linhaRetirada] / pivo
+      print(tableau[linhaRetirada])
+      for k  in range(tableau.shape[0]):
+            if k  != linhaRetirada:
+                  novaEntrada = tableau[k,colunaEntra]
+                  tableau[k] = tableau[k] - novaEntrada * tableau[linhaRetirada]
+      base[linhaRetirada] = colunaEntra
+    for coluna in range(quantidadeAresta, quantidadeAresta + quantidadeVertice):
+      valor = 0
+      if coluna in base:
+        valor = tableau[base.index(coluna),-1]
+      vertice =  coluna - quantidadeAresta + 1
+      if round(valor) == 0:
+            corteS.append(vertice)
+      else:
+            corteT.append(vertice)
+
+    W = -tableau[-1, -1]
+
+    return W, corteS, corteT

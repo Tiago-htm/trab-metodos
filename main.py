@@ -47,11 +47,14 @@ if __name__ == '__main__':
         print("\n===== Tableau Inicial Simplex =====")
         print(tableau_inicial)
 
-        res = primal_dual.corteMinimo(tableau_inicial)
+        quantidadeAresta = len(instancia['arestas'])
+        quantidadeVertice = instancia['qtdVertices']
+        W, corteS, corteT = primal_dual.corteMinimo(tableau_inicial,quantidadeVertice, quantidadeAresta)
+        print("W =", W)
+        print("Lado s:", corteS)
+        print("Lado t:", corteT)
 
         np.set_printoptions(threshold=np.inf, linewidth=250, precision=2, suppress=True)
-        print(tableau_inicial.shape)
-        print(tableau_inicial)
 
 
     elif(sys.argv[1] == "p2"):
