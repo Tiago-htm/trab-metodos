@@ -1,4 +1,5 @@
 import sys
+import time
 
 from numpy import rint
 
@@ -14,140 +15,122 @@ import primal_dual
 
 if __name__ == '__main__':
     if(sys.argv[1] == "p1"):
-        #Variaveis de entrada
+        # 1. Leitura e Preparação
         caminho = f"{sys.argv[1]}/instance{sys.argv[2]}.min"
         instancia = p1.lerInstance(caminho)
         pl = p1.montarPlCorte(instancia)
         matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertices'])
-        resultado_sw = sw.stoer_wagner(matriz)
+        
+        # 2. Execuções e Medição de Tempo
+        
+        # Tempo do Primal-Dual
+        t_inicio_pd = time.perf_counter()
+        tableau_inicial = aux.montar_tableau(pl, 'min')
+        W, corteS, corteT = primal_dual.corteMinimo(tableau_inicial, instancia['qtdVertices'], len(instancia['arestas']))
+        t_fim_pd = time.perf_counter()
+        tempo_pd = t_fim_pd - t_inicio_pd
 
+        # Tempo do PuLP
+        t_inicio_pulp = time.perf_counter()
+        valor_pulp, variaveis_pulp = pulpTeste.p1_pulp(instancia)
+        t_fim_pulp = time.perf_counter()
+        tempo_pulp = t_fim_pulp - t_inicio_pulp
+
+        # Tempo do Stoer-Wagner
+        t_inicio_sw = time.perf_counter()
+        resultado_sw = sw.stoer_wagner(matriz)
+        t_fim_sw = time.perf_counter()
+        tempo_sw = t_fim_sw - t_inicio_sw   
+
+        # 3. Tratamento de Dados do Bônus
         valor_sw = resultado_sw['valor']
         particao_1_real = [v + 1 for v in resultado_sw['particao1']]
         particao_2_real = [v + 1 for v in resultado_sw['particao2']]
 
-        print(f"\n[ P1 - Corte Mínimo s-t ]")
-        print(f"Vértices: {instancia['qtdVertices']} | Origem (s): {instancia['s']} | Destino (t): {instancia['t']}")
-        
-        #print("\n===== Arestas (u -> v : capacidade) =====")
-        #for u, v, cap in instancia['arestas']:
-            #print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
+        # 4. Impressão do Relatório P1
+        print("="*60)
+        print(f" RELATÓRIO: PROBLEMA 1 - CORTE MÍNIMO s-t")
+        print(f" Vértices: {instancia['qtdVertices']} | Origem (s): {instancia['s']} | Destino (t): {instancia['t']}")
+        print("="*60)
+
+        print("\n[ 1. SOLUÇÃO PRIMAL-DUAL ]")
+        print(f"Tempo de Execução      : {tempo_pd:.5f} segundos")
+        print(f"Custo do Corte s-t (W) : {W:.2f}")
+        print(f"Lado da Origem (s)     : {corteS}")
+        print(f"Lado do Destino (t)    : {corteT}")
+
+        print("\n[ 2. SOLUÇÃO COIN-OR (PuLP) ]")
+        print(f"Tempo de Execução      : {tempo_pulp:.5f} segundos")
+        print(f"Custo do Corte s-t     : {valor_pulp:.2f}")
+        print("Variáveis Ativas (x_uv > 0):")
+        for var in variaveis_pulp:
+            val = round(var.varValue, 5) 
+            if val > 0 and var.name.startswith('x'):
+                print(f"  {var.name} = {val}")
+
+        print("\n[ 3. CORTE MÍNIMO GLOBAL (Stoer-Wagner) ]")
+        print(f"Tempo de Execução      : {tempo_sw:.5f} segundos")
+        print(f"Custo do Corte Global  : {valor_sw:.2f}")
+        print(f"Partição 1 (Ilha A)    : {particao_1_real}")
+        print(f"Partição 2 (Ilha B)    : {particao_2_real}")
+
+        print("\n" + "-"*60)
+        print(" CONCLUSÃO DA COMPARAÇÃO:")
+        if abs(W - valor_pulp) < 1e-5:
+            print(" -> O Primal-Dual alcançou a mesma solução ótima do PuLP.")
+        else:
+            print(" -> ALERTA: Divergência entre Primal-Dual e PuLP.")
             
-        #print("\n===== Restrições (A <= b) =====")
-        #for linha, bi in zip(pl['A'], pl['b']):
-            #linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
-            #print(f"[{linha_formatada}] <= {bi:5.1f}")
-
-            
-        #print("\n===== Vetor de Custos (c) =====")
-        #c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
-        #print(f"[{c_formatado}]")
-
-        matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertices'])
-        #print("\n===== Matriz de Adjacência =====")
-        #print(matriz)
-
-        print(f"\n" + "="*55)
-        
-
-        tableau_inicial = aux.montar_tableau(pl, 'min')
-        quantidadeAresta = len(instancia['arestas'])
-        quantidadeVertice = instancia['qtdVertices']
-
-        W, corteS, corteT = primal_dual.corteMinimo(tableau_inicial,quantidadeVertice, quantidadeAresta)
-        
-
-        np.set_printoptions(threshold=np.inf, linewidth=250, precision=2, suppress=True)
-
-
-        valor_otimo, variaveis = pulpTeste.p1_pulp(instancia)
-
-
-        print(f"\n" + "="*55)
-        print(f" RESULTADO DO PRIMAL-DUAL (Corte Mínimo)")
-        
-        print("W =", W)
-        print("Lado s:", corteS)
-        print("Lado t:", corteT)
-
-        print(f"\n" + "="*55)
-        print(f"Valor do Corte Mínimo Pulp: {valor_otimo}")
-        print("=== Variáveis Ativas (Valor > 0) ===")
-        for var in variaveis:
-                    valor_arredondado = round(var.varValue, 5) 
-                    
-                    if valor_arredondado > 0:
-                        print(f"{var.name} = {valor_arredondado}")
-        
-        print("="*55)
-        print(f" RESULTADO DO STOER-WAGNER (Corte Mínimo)")
-        #print("="*55)
-        print(f"Custo do Corte Global : {valor_sw:5.1f}")
-        print(f"Partição (A)     : {particao_1_real}")
-        print(f"Resto do Grafo (B)    : {particao_2_real}")
-        print("="*55)
-
-        
-        
+        if valor_sw < W:
+            print(f" -> O corte global ({valor_sw}) é menor que o corte s-t ({W}).")
+            print("    O elo mais fraco da rede não está na rota principal de s para t.")
+        else:
+            print(" -> O corte global é igual ao corte s-t. O gargalo principal separa s e t.")
+        print("="*60 + "\n")
 
 
     elif(sys.argv[1] == "p2"):
-        #Variaveis de entrada
         caminho = f"{sys.argv[1]}/mc_instance{sys.argv[2]}.max"
         instancia = p2.lerInstance(caminho)
-        matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertice'])
-        menor_corte = sw.stoer_wagner(matriz)
-
-        print(f"\n[ P2 - Fluxo Máximo (Múltiplas Mercadorias) ]")
-        print(f"Vértices: {instancia['qtdVertice']} | Mercadorias: {instancia['qtdMercadoria']}")
-        
-        print("\n===== Mercadorias (Origem -> Destino : Prémio) =====")
-        for m in range(1, instancia['qtdMercadoria'] + 1):
-            origem = instancia['origens'][m]
-            destino = instancia['destinos'][m]
-            premio = instancia['premios'][m]
-            print(f"  Merc {m}: {origem:2d} -> {destino:2d} | Prémio: {premio:5.1f}")
-
-        #print("\n===== Arestas (u -> v : capacidade) =====")
-        #for u, v, cap in instancia['arestas']:
-            #print(f"  {u:2d} -> {v:2d} : {cap:5.1f}")
-            
         pl = p2.montarPlMercadoria(instancia)
         
-        #print("\n===== Restrições (A <= b) =====")
-        #for linha, bi in zip(pl['A'], pl['b']):
-            #linha_formatada = " ".join([f"{x:4.1f}" for x in linha])
-            #print(f"[{linha_formatada}] <= {bi:5.1f}")
-            
-        #print("\n===== Vetor de Custos (c) =====")
-        #c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
-        #print(f"[{c_formatado}]")
-
+        t_inicio_pd = time.perf_counter()
         tableau_inicial = aux.montar_tableau(pl, 'max')
-        quantidadeAresta =  len(instancia['arestas'])
-        quantidadeMercadoria = instancia['qtdMercadoria']
-        
-        Z, fluxos = primal_dual.mercadoria(tableau_inicial, quantidadeAresta, quantidadeMercadoria)
-        
+        Z, fluxos = primal_dual.mercadoria(tableau_inicial, len(instancia['arestas']), instancia['qtdMercadoria'])
+        t_fim_pd = time.perf_counter()
+        tempo_pd = t_fim_pd - t_inicio_pd
 
-        valor_otimo, variaveis = pulpTeste.p2_pulp(instancia)
+        t_inicio_pulp = time.perf_counter()
+        valor_pulp, variaveis_pulp = pulpTeste.p2_pulp(instancia)
+        t_fim_pulp = time.perf_counter()
+        tempo_pulp = t_fim_pulp - t_inicio_pulp
 
-        print(f"\n" + "="*55)
-        print(f" RESULTADO DO PRIMAL-DUAL (Fluxo Máximo)")
-        print("="*55)
-        print("Z =", Z)
+        print("="*60)
+        print(f" RELATÓRIO: PROBLEMA 2 - FLUXO MÁXIMO MULTIMERCADORIA")
+        print(f" Vértices: {instancia['qtdVertice']} | Mercadorias: {instancia['qtdMercadoria']}")
+        print("="*60)
+
+        print("\n[ 1. SOLUÇÃO PRIMAL-DUAL (Seu Algoritmo) ]")
+        print(f"Tempo de Execução      : {tempo_pd:.5f} segundos")
+        print(f"Lucro Máximo Total (Z) : {Z:.2f}")
+        print("Fluxos Ativos (f > 0):")
         for mercadoria, arco, valor in fluxos:
             u, v, cap = instancia['arestas'][arco]
-            print(f"  Mercadoria {mercadoria}: {u:2d} -> {v:2d} : {valor}")
+            print(f"  Merc {mercadoria}: {u:2d} -> {v:2d} | Fluxo: {valor:.2f}")
 
-        print(f"\n" + "="*55)
-        print(f"Valor do Fluxo Máximo Pulp: {valor_otimo}")
-        print("=== Variáveis Ativas (Valor > 0) ===")
+        print("\n[ 2. SOLUÇÃO COIN-OR (PuLP) ]")
+        print(f"Tempo de Execução      : {tempo_pulp:.5f} segundos")
+        print(f"Lucro Máximo Total     : {valor_pulp:.2f}")
+        print("Variáveis Ativas (f > 0):")
+        for var in variaveis_pulp:
+            val = round(var.varValue, 5) 
+            if val > 0:
+                print(f"  {var.name} = {val}")
 
-        for var in variaveis:
-            valor_arredondado = round(var.varValue, 5) 
-            
-            if valor_arredondado > 0:
-                print(f"{var.name} = {valor_arredondado}")
-        print("="*55)
-        
-
+        print("\n" + "-"*60)
+        print(" CONCLUSÃO DA COMPARAÇÃO:")
+        if abs(Z - valor_pulp) < 1e-5:
+            print(" -> O Primal-Dual alcançou a mesma solução ótima do PuLP (Correto!).")
+        else:
+            print(" -> ALERTA: Divergência entre Primal-Dual e PuLP.")
+        print("="*60 + "\n")
