@@ -31,7 +31,7 @@ def primalDual(tableau):
       linhaRetirada = None
       menorValor = 0
       for i, valor in enumerate(tableau[:-1, -1]):
-            if valor < -1e-9:
+            if valor < 0:
                 if menorValor > valor:
                     menorValor, linhaRetirada = valor, i
       if linhaRetirada is None:
@@ -41,7 +41,7 @@ def primalDual(tableau):
       melhorRazao = -100000000000000
 
       for  j, valor in enumerate(tableau[linhaRetirada, :-1]):
-            if valor < -1e-9:
+            if valor < 0:
                 razao = tableau[-1, j] / valor  
                 if razao >  melhorRazao:
                      melhorRazao, colunaEntra = razao, j
@@ -61,7 +61,7 @@ def primalDual(tableau):
          colunaEntra = None
          menorValor = 0
          for j, valor in enumerate(tableau[-1, :-1]):
-            if valor < -1e-9:
+            if valor < 0:
                   if menorValor > valor:
                         menorValor, colunaEntra =  valor, j
          if colunaEntra is None:
@@ -69,7 +69,7 @@ def primalDual(tableau):
          linhaRetirada = None
          melhorRazao =  10000000000000000000
          for i, valor in enumerate(tableau[:-1,colunaEntra]):
-             if valor > 1e-9:
+             if valor >0:
                   razao = tableau[i,-1] / valor
                   if razao < melhorRazao:
                         melhorRazao, linhaRetirada =  razao, i
