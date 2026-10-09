@@ -45,4 +45,11 @@ def stoer_wagner(matriz):
         particoes[s].extend(particoes[t])
         vertices_ativos.remove(t)
 
-    return menor_corte, melhor_particao
+        todos_vertices = set(range(n))
+        particao_2 = list(todos_vertices - set(melhor_particao))
+
+    return {
+        'valor': menor_corte,
+        'particao1': melhor_particao,
+        'particao2': particao_2
+    }
