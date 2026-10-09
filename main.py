@@ -8,6 +8,7 @@ import numpy as np
 import primal_dual
 
 
+
 if __name__ == '__main__':
     if(sys.argv[1] == "p1"):
         #Variaveis de entrada
@@ -89,7 +90,14 @@ if __name__ == '__main__':
         c_formatado = " ".join([f"{x:4.1f}" for x in pl['c']])
         print(f"[{c_formatado}]")
 
-        tableau_inicial = aux.montar_tableau(pl, max)
-        print("\n===== Tableau Inicial Simplex =====")
-        print(tableau_inicial)
+        tableau_inicial = aux.montar_tableau(pl, 'max')
+        quantidadeAresta =  len(instancia['arestas'])
+        quantidadeMercadoria = instancia['qtdMercadoria']
+
+        Z, fluxos = primal_dual.mercadoria(tableau_inicial, quantidadeAresta, quantidadeMercadoria)
+        print("Z =", Z)
+        for mercadoria, arco, valor in fluxos:
+            u, v, cap = instancia['arestas'][arco]
+            print(f"  Mercadoria {mercadoria}: {u:2d} -> {v:2d} : {valor}")
+
 
