@@ -25,5 +25,24 @@ def corteMinimo(tableau):
     inicioFolga =  quantidadeColuna - quantidadeR -1
     #a base é quantidade de restrições que existem!!
     base = list(range(inicioFolga, inicioFolga+quantidadeR))
-    print("aaaaaaaaaaaaaaaaaa")
-    print(base)
+    while True:
+      linhaRetirada = None
+      menorValor = 0
+      for i, valor in enumerate(tableau[:-1, -1]):
+            if valor < -1e-9:
+                if menorValor > valor:
+                    menorValor, linhaRetirada = valor, i
+      if linhaRetirada is None:
+            print("Interacao acabou")
+            break
+      colunaEntra = None
+      melhorRazao = -1000000000000
+
+      for  j, valor in enumerate(tableau[linhaRetirada, :-1]):
+            if valor < -1e-9:
+                razao = tableau[-1, j] / valor  
+                if razao >  melhorRazao:
+                     melhorRazao, colunaEntra = razao, j
+      if colunaEntra is None:
+            print("PPL sem solucao")
+            break
