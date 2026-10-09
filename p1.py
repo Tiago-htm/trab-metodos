@@ -36,10 +36,17 @@ def montarPlCorte(instancia):
     b = []
     for indexAresta, (u, v, cap) in enumerate(arestas):
         coef1 = [0.0] * qtdColunas
-        coef1[indexAresta] = -1.0                  
-        coef1[qtdArestas + u - 1] = -1.0           
-        coef1[qtdArestas + v - 1] = 1.0             
+        coef1[indexAresta] = -1.0
+        coef1[qtdArestas + u - 1] = 1.0
+        coef1[qtdArestas + v - 1] = -1.0
         A.append(coef1)
+        b.append(0.0)
+
+        coef2 = [0.0] * qtdColunas
+        coef2[indexAresta] = -1.0                  
+        coef2[qtdArestas + u - 1] = -1.0           
+        coef2[qtdArestas + v - 1] = 1.0             
+        A.append(coef2)
         b.append(0.0)
 
     coef_s1 = [0.0] * qtdColunas

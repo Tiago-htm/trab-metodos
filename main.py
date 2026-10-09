@@ -2,6 +2,7 @@ import sys
 
 import p1
 import p2
+import pulpTeste
 import stoer_wagner as sw
 import auxiliares as aux
 
@@ -46,6 +47,18 @@ if __name__ == '__main__':
         print(tableau_inicial)
 
 
+        valor_otimo, variaveis = pulpTeste.p1_pulp(instancia)
+
+        print(f"Valor do Corte Mínimo Pulp: {valor_otimo}")
+        print("=== Variáveis Ativas (Valor > 0) ===")
+
+        for var in variaveis:
+            valor_arredondado = round(var.varValue, 5) 
+            
+            if valor_arredondado > 0:
+                print(f"{var.name} = {valor_arredondado}")
+
+
     elif(sys.argv[1] == "p2"):
         #Variaveis de entrada
         caminho = f"{sys.argv[1]}/mc_instance{sys.argv[2]}.max"
@@ -81,4 +94,16 @@ if __name__ == '__main__':
         tableau_inicial = aux.montar_tableau(pl, max)
         print("\n===== Tableau Inicial Simplex =====")
         print(tableau_inicial)
+
+
+        valor_otimo, variaveis = pulpTeste.p2_pulp(instancia)
+
+        print(f"Valor do Fluxo Máximo Pulp: {valor_otimo}")
+        print("=== Variáveis Ativas (Valor > 0) ===")
+
+        for var in variaveis:
+            valor_arredondado = round(var.varValue, 5) 
+            
+            if valor_arredondado > 0:
+                print(f"{var.name} = {valor_arredondado}")
 
