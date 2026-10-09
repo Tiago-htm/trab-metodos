@@ -25,39 +25,6 @@ def lerInstance(caminho):
 
 def montarPlCorte(instancia):
     arestas = instancia['arestas']
-    qtdAresta = len(arestas)
-    s = instancia['s']
-    t = instancia['t']
-
-    A = []
-    b = []
-    for indexAresta, (u, v, cap) in enumerate(arestas):
-        coef = [0.0] * qtdAresta
-        coef[indexAresta] = 1.0
-        A.append(coef)
-        b.append(cap)
-    for vertice in range(1, instancia['qtdVertices'] + 1):
-        if vertice == s or vertice == t:
-            continue
-        coef = [0.0] * qtdAresta
-        for indexAresta, (u, v, cap) in enumerate(arestas):
-            if v == vertice:
-                coef[indexAresta] += 1.0
-            if u == vertice:
-                coef[indexAresta] -= 1.0
-        A.append(coef)
-        b.append(0.0)
-        A.append([-x for x in coef])
-        b.append(0.0)
-    c = [0.0] * qtdAresta
-    for indexAresta, (u, v, cap) in enumerate(arestas):
-        if v == t:
-            c[indexAresta] = 1.0
-
-    return {'A': A, 'b': b, 'c': c}
-
-def montarPlCorte(instancia):
-    arestas = instancia['arestas']
     qtdArestas = len(arestas)
     qtdVertices = instancia['qtdVertices']
     s = instancia['s']
@@ -69,9 +36,9 @@ def montarPlCorte(instancia):
     b = []
     for indexAresta, (u, v, cap) in enumerate(arestas):
         coef1 = [0.0] * qtdColunas
-        coef1[indexAresta] = -1.0                   
-        coef1[qtdArestas + u - 1] = 1.0         
-        coef1[qtdArestas + v - 1] = -1.0       
+        coef1[indexAresta] = -1.0
+        coef1[qtdArestas + u - 1] = 1.0
+        coef1[qtdArestas + v - 1] = -1.0
         A.append(coef1)
         b.append(0.0)
 

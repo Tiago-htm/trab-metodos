@@ -2,6 +2,7 @@ import sys
 
 import p1
 import p2
+import pulpTeste
 import stoer_wagner as sw
 import auxiliares as aux
 import numpy as np
@@ -58,6 +59,18 @@ if __name__ == '__main__':
         np.set_printoptions(threshold=np.inf, linewidth=250, precision=2, suppress=True)
 
 
+        valor_otimo, variaveis = pulpTeste.p1_pulp(instancia)
+
+        print(f"Valor do Corte Mínimo Pulp: {valor_otimo}")
+        print("=== Variáveis Ativas (Valor > 0) ===")
+
+        for var in variaveis:
+            valor_arredondado = round(var.varValue, 5) 
+            
+            if valor_arredondado > 0:
+                print(f"{var.name} = {valor_arredondado}")
+
+
     elif(sys.argv[1] == "p2"):
         #Variaveis de entrada
         caminho = f"{sys.argv[1]}/mc_instance{sys.argv[2]}.max"
@@ -100,4 +113,16 @@ if __name__ == '__main__':
             u, v, cap = instancia['arestas'][arco]
             print(f"  Mercadoria {mercadoria}: {u:2d} -> {v:2d} : {valor}")
 
+
+
+        valor_otimo, variaveis = pulpTeste.p2_pulp(instancia)
+
+        print(f"Valor do Fluxo Máximo Pulp: {valor_otimo}")
+        print("=== Variáveis Ativas (Valor > 0) ===")
+
+        for var in variaveis:
+            valor_arredondado = round(var.varValue, 5) 
+            
+            if valor_arredondado > 0:
+                print(f"{var.name} = {valor_arredondado}")
 
