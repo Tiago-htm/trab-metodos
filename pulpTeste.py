@@ -23,7 +23,7 @@ def p1_pulp(instancia):
     
     prob.solve()
     
-    return pulp.value(prob.objective), prob.variables()
+    return pulp.value(prob.objective), prob.variables(), prob.constraints
 
 
 def p2_pulp(instancia):
@@ -69,4 +69,4 @@ def p2_pulp(instancia):
 
     prob.solve()
 
-    return pulp.value(prob.objective), prob.variables()
+    return pulp.value(prob.objective), prob.variables(), prob.constraints
