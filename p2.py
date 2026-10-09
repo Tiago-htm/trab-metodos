@@ -83,5 +83,5 @@ if __name__ == '__main__':
     print('arestas =', instancia['arestas'])
     pl = montarPlMercadoria(instancia)
     for linha, bi in zip(pl['A'], pl['b']):
-        print(linha, '<=', bi)
+        print(linha, '>=', bi)
     print('c =', pl['c'])

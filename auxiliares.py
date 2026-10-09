@@ -32,3 +32,4 @@ def montar_tableau(pl, objetivo):
     tableau = np.vstack((corpo_tableau, linha_z))
     
     return tableau
+

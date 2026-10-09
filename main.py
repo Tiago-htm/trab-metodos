@@ -4,10 +4,12 @@ import p1
 import p2
 import stoer_wagner as sw
 import auxiliares as aux
+import numpy as np
+import primal_dual
+
 
 if __name__ == '__main__':
     if(sys.argv[1] == "p1"):
-
         #Variaveis de entrada
         caminho = f"{sys.argv[1]}/instance{sys.argv[2]}.min"
         instancia = p1.lerInstance(caminho)
@@ -41,8 +43,14 @@ if __name__ == '__main__':
         print(f"Melhor partição: {melhor_particao}")
 
 
-        tableau_inicial = aux.montar_tableau(pl, min)
+        tableau_inicial = aux.montar_tableau(pl, 'min')
         print("\n===== Tableau Inicial Simplex =====")
+        print(tableau_inicial)
+
+        res = primal_dual.corteMinimo(tableau_inicial)
+
+        np.set_printoptions(threshold=np.inf, linewidth=250, precision=2, suppress=True)
+        print(tableau_inicial.shape)
         print(tableau_inicial)
 
 
