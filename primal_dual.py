@@ -92,6 +92,20 @@ def corteMinimo(tableau, quantidadeVertice, quantidadeAresta):
     corteS = []
     corteT = []
     tableau, base  = primalDual(tableau)
+
+    num_vars = quantidadeAresta + quantidadeVertice
+    num_restricoes = tableau.shape[0] - 1
+    
+    primais_ativas = {}
+    for coluna in range(num_vars):
+        if coluna in base:
+            valor = round(tableau[base.index(coluna), -1], 5)
+            if valor > 0:
+                if coluna < quantidadeAresta:
+                    primais_ativas[f"x_aresta_{coluna}"] = valor
+                else:
+                    primais_ativas[f"d_vertice_{coluna - quantidadeAresta + 1}"] = valor
+    
     for coluna in range(quantidadeAresta, quantidadeAresta + quantidadeVertice):
       valor = 0
       if coluna in base:
@@ -102,24 +116,40 @@ def corteMinimo(tableau, quantidadeVertice, quantidadeAresta):
       else:
             corteT.append(vertice)
 
+    duais_ativas = {}
+    for i in range(num_restricoes):
+      coluna_slack = num_vars + i
+      valor_dual = round(tableau[-1, coluna_slack], 5)
+      if abs(valor_dual) > 0:
+            duais_ativas[f"y_{i+1}"] = abs(valor_dual)
     W = -tableau[-1, -1]
 
-    return W, corteS, corteT
+    return W, corteS, corteT, primais_ativas, duais_ativas
 
 
 def mercadoria(tableau, quantidadeAresta, quantidadeMercadoria):
     fluxos = []
-    tableau, base  = primalDual(tableau)
-    for coluna in range(0, quantidadeAresta * quantidadeMercadoria):
-      valor = 0
-      if coluna in base:
-        valor = tableau[base.index(coluna),-1]
-      valor = round(valor, 6)
-      if valor != 0:
-            mercadoria = (coluna // quantidadeAresta) + 1   # pega valor de mercadoria correto
-            aresta = coluna % quantidadeAresta
-            fluxos.append((mercadoria, aresta, valor))
+    tableau, base = primalDual(tableau)
+    
+    num_vars = quantidadeAresta * quantidadeMercadoria
+    num_restricoes = tableau.shape[0] - 1
+    
+    for coluna in range(num_vars):
+        valor = 0
+        if coluna in base:
+            valor = round(tableau[base.index(coluna), -1], 5)
+        if valor > 0:
+            mercadoria_id = (coluna // quantidadeAresta) + 1
+            aresta_id = coluna % quantidadeAresta
+            fluxos.append((mercadoria_id, aresta_id, valor))
+
+    duais_ativas = {}
+    for i in range(num_restricoes):
+        coluna_slack = num_vars + i
+        valor_dual = round(tableau[-1, coluna_slack], 5)
+        if abs(valor_dual) > 0:
+            duais_ativas[f"y_{i+1}"] = abs(valor_dual)
 
     Z = tableau[-1, -1]
 
-    return Z, fluxos
+    return Z, fluxos, duais_ativas

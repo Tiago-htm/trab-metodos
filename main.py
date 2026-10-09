@@ -15,39 +15,31 @@ import primal_dual
 
 if __name__ == '__main__':
     if(sys.argv[1] == "p1"):
-        # 1. Leitura e Preparação
         caminho = f"{sys.argv[1]}/instance{sys.argv[2]}.min"
         instancia = p1.lerInstance(caminho)
         pl = p1.montarPlCorte(instancia)
         matriz = aux.arestas_para_matriz(instancia['arestas'], instancia['qtdVertices'])
         
-        # 2. Execuções e Medição de Tempo
-        
-        # Tempo do Primal-Dual
         t_inicio_pd = time.perf_counter()
         tableau_inicial = aux.montar_tableau(pl, 'min')
-        W, corteS, corteT = primal_dual.corteMinimo(tableau_inicial, instancia['qtdVertices'], len(instancia['arestas']))
+        W, corteS, corteT, primais_pd, duais_pd = primal_dual.corteMinimo(tableau_inicial, instancia['qtdVertices'], len(instancia['arestas']))
         t_fim_pd = time.perf_counter()
         tempo_pd = t_fim_pd - t_inicio_pd
 
-        # Tempo do PuLP
         t_inicio_pulp = time.perf_counter()
-        valor_pulp, variaveis_pulp = pulpTeste.p1_pulp(instancia)
+        valor_pulp, variaveis_pulp, restricoes_pulp = pulpTeste.p1_pulp(instancia)
         t_fim_pulp = time.perf_counter()
         tempo_pulp = t_fim_pulp - t_inicio_pulp
 
-        # Tempo do Stoer-Wagner
         t_inicio_sw = time.perf_counter()
         resultado_sw = sw.stoer_wagner(matriz)
         t_fim_sw = time.perf_counter()
         tempo_sw = t_fim_sw - t_inicio_sw   
 
-        # 3. Tratamento de Dados do Bônus
         valor_sw = resultado_sw['valor']
         particao_1_real = [v + 1 for v in resultado_sw['particao1']]
         particao_2_real = [v + 1 for v in resultado_sw['particao2']]
 
-        # 4. Impressão do Relatório P1
         print("="*60)
         print(f" RELATÓRIO: PROBLEMA 1 - CORTE MÍNIMO s-t")
         print(f" Vértices: {instancia['qtdVertices']} | Origem (s): {instancia['s']} | Destino (t): {instancia['t']}")
@@ -58,6 +50,13 @@ if __name__ == '__main__':
         print(f"Custo do Corte s-t (W) : {W:.2f}")
         print(f"Lado da Origem (s)     : {corteS}")
         print(f"Lado do Destino (t)    : {corteT}")
+        print("\n--- Variáveis Primais (Não-Nulas) ---")
+        for nome, valor in primais_pd.items():
+            print(f"  {nome} = {valor}")
+            
+        print("\n--- Variáveis Duais (Não-Nulas) ---")
+        for nome, valor in duais_pd.items():
+            print(f"  {nome} = {valor}")
 
         print("\n[ 2. SOLUÇÃO COIN-OR (PuLP) ]")
         print(f"Tempo de Execução      : {tempo_pulp:.5f} segundos")
@@ -67,12 +66,16 @@ if __name__ == '__main__':
             val = round(var.varValue, 5) 
             if val > 0 and var.name.startswith('x'):
                 print(f"  {var.name} = {val}")
+        print("\n--- Variáveis Duais (Não-Nulas) ---")
+        for nome_restricao, restricao in restricoes_pulp.items():
+            if restricao.pi and round(restricao.pi, 5) != 0:
+                print(f"  {nome_restricao} = {round(restricao.pi, 5)}")
 
         print("\n[ 3. CORTE MÍNIMO GLOBAL (Stoer-Wagner) ]")
         print(f"Tempo de Execução      : {tempo_sw:.5f} segundos")
         print(f"Custo do Corte Global  : {valor_sw:.2f}")
-        print(f"Partição 1 (Ilha A)    : {particao_1_real}")
-        print(f"Partição 2 (Ilha B)    : {particao_2_real}")
+        print(f"Partição 1 : {particao_1_real}")
+        print(f"Partição 2 : {particao_2_real}")
 
         print("\n" + "-"*60)
         print(" CONCLUSÃO DA COMPARAÇÃO:")
@@ -96,12 +99,12 @@ if __name__ == '__main__':
         
         t_inicio_pd = time.perf_counter()
         tableau_inicial = aux.montar_tableau(pl, 'max')
-        Z, fluxos = primal_dual.mercadoria(tableau_inicial, len(instancia['arestas']), instancia['qtdMercadoria'])
+        Z, fluxos, duais_pd = primal_dual.mercadoria(tableau_inicial, len(instancia['arestas']), instancia['qtdMercadoria'])
         t_fim_pd = time.perf_counter()
         tempo_pd = t_fim_pd - t_inicio_pd
 
         t_inicio_pulp = time.perf_counter()
-        valor_pulp, variaveis_pulp = pulpTeste.p2_pulp(instancia)
+        valor_pulp, variaveis_pulp, restricoes_pulp = pulpTeste.p2_pulp(instancia)
         t_fim_pulp = time.perf_counter()
         tempo_pulp = t_fim_pulp - t_inicio_pulp
 
@@ -117,6 +120,9 @@ if __name__ == '__main__':
         for mercadoria, arco, valor in fluxos:
             u, v, cap = instancia['arestas'][arco]
             print(f"  Merc {mercadoria}: {u:2d} -> {v:2d} | Fluxo: {valor:.2f}")
+        print("\n--- Variáveis Duais (Não-Nulas) ---")
+        for nome, valor in duais_pd.items():
+            print(f"  {nome} = {valor}")
 
         print("\n[ 2. SOLUÇÃO COIN-OR (PuLP) ]")
         print(f"Tempo de Execução      : {tempo_pulp:.5f} segundos")
@@ -126,6 +132,10 @@ if __name__ == '__main__':
             val = round(var.varValue, 5) 
             if val > 0:
                 print(f"  {var.name} = {val}")
+        print("\n--- Variáveis Duais (Não-Nulas) ---")
+        for nome_restricao, restricao in restricoes_pulp.items():
+            if restricao.pi and round(restricao.pi, 5) != 0:
+                print(f"  {nome_restricao} = {round(restricao.pi, 5)}")
 
         print("\n" + "-"*60)
         print(" CONCLUSÃO DA COMPARAÇÃO:")
